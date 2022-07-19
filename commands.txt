@@ -1,0 +1,43 @@
+create new laravel project
+composer create-project --prefer-dist laravel/laravel blog
+run-server 
+php artisan serve
+controllers
+php artisan make:controller OrderController
+migration
+php artisan make:migration CreatePizzasTable
+
+change column name:
+php artisan make:migration change_price_pizzas_table --table=pizzas 
+
+delete all tables and rerun migrations
+php artisan migrate:fresh
+
+php artisan make:status 
+
+php artisan make:seeder PizzasTableSeeder
+
+auth::routes
+
+login/register
+composer require laravel/ui
+php artisan ui vue --auth
+npm install
+npm run dev
+
+php artisan make:model ProductCategory -mc
+
+php artisan migrate:rollback --step=1
+
+
+create factory
+php artisan make:factory OrderFactory
+make seeders
+php artisan make:seeder ProductCategoriesSeeder
+
+migrate and run all seeders
+php artisan migrate:fresh --seed
+run one seeder
+php artisan db:seed --class=ProductSeeder
+
+php artisan make:enum CategoryType
