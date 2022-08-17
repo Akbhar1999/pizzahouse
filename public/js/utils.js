@@ -9,10 +9,10 @@ const formatMoney = (price) =>
 // const getCategories = () => $.get($('#categoryRoute').val(), (category) => category);
 
 const getColours = (_) => [
-    "primary",
-    "secondary",
-    "success",
     "danger",
+    "primary",
+    "success",
+    "warning",
     "warning",
     "info",
     "light",
@@ -35,7 +35,6 @@ function getCategories() {
             async: false,
             url: $("#categoryRoute").val(),
             success: (data) => {
-
                 const colours = getColours().slice(0, data.length);
 
                 data.forEach((item, i) =>
@@ -55,53 +54,67 @@ function getCategories() {
 
 getCategories();
 
-
+// from db
 const defaultCategoryColours = (item) => {
-    const tempColours = [];
-    const itemCategories = item.category_list.split(",");
+    const colours = [];
+    const categories = item.category_list.split(",");
+    categories.forEach((category) =>
+        colours.push(
+            products.find((product) => product.name == category).colour
+        )
+    );
+    return colours;
+};
 
-    // manually populate category colours
+const getCategoryColour = (colour) => {
+    const categoryDetails = (obj) => (val) => obj[val];
+    const categories = Object.freeze({
+        pizza: "success",
+        crusts: "primary",
+        toppings: "warning",
+    });
 
-    // itemCategories.forEach(category => {
-    //     switch (category) {
-    //         case "pizza":
-    //             tempColours.push("danger");
-    //             break;
-    //         case "crusts":
-    //             tempColours.push("info");
-    //             break;
-    //         case "toppings":
-    //             tempColours.push("success");
-    //             break;
-    //     }
-
-    // });
-    itemCategories.forEach(category => tempColours.push(products.find((product) => product.name == category).colour))
-    return tempColours;
+    const colourValue = categoryDetails(categories);
+    return colourValue(colour);
+};
+// from predefined object
+const defaultColours = (item) => {
+    const categoryDetails = (obj) => (val) => obj[val];
+    const productCategories = item.category_list.split(",");
+    const colours = [];
+    productCategories.forEach((category) =>
+        colours.push(getCategoryColour(category))
+    );
+    // productCategories.forEach(i =>colours.push(categories[i]))
+    return colours;
 };
 
 const renderUI = (categories, colours = getColours()) => {
     let output = "";
     categories.forEach(
         (category, i) =>
-        (output += `<span class="badge text-bg-${colours[i] ?? "warning"} ${i % 2 ? "m-1" : ""
+            (output += `<span class="badge text-bg-${colours[i] ?? "warning"} ${
+                i % 2 ? "m-1" : ""
             }">${category}</span>`)
     );
     return output;
 };
 
 const showCategories = (item) => {
-    const defaultColour = _ => colours = defaultCategoryColours(item);
+    const defaultColour = (item) => (colours = defaultColours(item)); /// defaultCategoryColours(item)
     const categories = item.category_list.split(",");
     const coloursExists = item.category_colours;
-    let colours = coloursExists && coloursExists.length != categories.length ? item.category_colours.split(",") : '';
+    let colours =
+        coloursExists && coloursExists.length != categories.length
+            ? item.category_colours.split(",")
+            : "";
 
-    if (!coloursExists) defaultColour()
-    if (coloursExists && colours.length != categories.length) defaultColour()
+    if (!coloursExists) defaultColour(item);
+    if (coloursExists && colours.length != categories.length)
+        defaultColour(item);
 
     return renderUI(categories, colours);
-
-}
+};
 
 const setMessage = (message, type = "alert-danger") => `
 <div class="alert ${type} mt-4" role="alert">
